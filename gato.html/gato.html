@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gatinho - Caçador de Petiscos</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #72cfff;
+    user-select: none;
+}
+
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            to bottom,
+            #69c9ff 0%,
+            #bceaff 72%,
+            #79c850 72%,
+            #54a936 100%
+        );
+}
+
+/* =========================
+   NUVENS
+========================= */
+
+.cloud {
+    position: absolute;
+    width: 150px;
+    height: 45px;
+    background: white;
+    border-radius: 50px;
+    opacity: .8;
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 65px;
+    height: 65px;
+    left: 25px;
+    top: -30px;
+}
+
+.cloud::after {
+    width: 80px;
+    height: 80px;
+    right: 15px;
+    top: -40px;
+}
+
+.cloud1 {
+    top: 12%;
+    left: 10%;
+}
+
+.cloud2 {
+    top: 25%;
+    left: 65%;
+    transform: scale(.7);
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 50;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.hud-box {
+    background: rgba(0,0,0,.3);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 2px 2px #333;
+}
+
+/* =========================
+   GATINHO
+========================= */
+
+#player {
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    bottom: 65px;
+    left: 50%;
+    z-index: 20;
+
+    transform: translateX(-50%);
+    transition: transform .1s;
+}
+
+/* cabeça */
+
+.cat-head {
+    position: absolute;
+    width: 64px;
+    height: 58px;
+    left: 6px;
+    top: 12px;
+
+    background: #f3a64a;
+    border: 3px solid #8c4e20;
+    border-radius: 48% 48% 45% 45%;
+}
+
+/* orelhas */
+
+.ear-left,
+.ear-right {
+    position: absolute;
+    width: 28px;
+    height: 30px;
+    top: -12px;
+    background: #f3a64a;
+    border: 3px solid #8c4e20;
+}
+
+.ear-left {
+    left: 3px;
+    transform: rotate(-30deg);
+    border-radius: 60% 20% 10% 20%;
+}
+
+.ear-right {
+    right: 3px;
+    transform: rotate(30deg);
+    border-radius: 20% 60% 20% 10%;
+}
+
+/* olhos */
+
+.eye {
+    position: absolute;
+    width: 10px;
+    height: 13px;
+    top: 22px;
+    background: #222;
+    border-radius: 50%;
+}
+
+.eye.left {
+    left: 18px;
+}
+
+.eye.right {
+    right: 18px;
+}
+
+/* nariz */
+
+.nose {
+    position: absolute;
+    width: 9px;
+    height: 7px;
+    left: 28px;
+    top: 37px;
+    background: #d95b6a;
+    border-radius: 50%;
+}
+
+/* boca */
+
+.mouth {
+    position: absolute;
+    width: 18px;
+    height: 8px;
+    left: 24px;
+    top: 43px;
+    border-bottom: 2px solid #713c25;
+    border-radius: 50%;
+}
+
+/* bigodes */
+
+.whisker {
+    position: absolute;
+    width: 24px;
+    height: 1px;
+    background: #713c25;
+}
+
+.w1 {
+    left: -18px;
+    top: 36px;
+    transform: rotate(10deg);
+}
+
+.w2 {
+    left: -18px;
+    top: 44px;
+    transform: rotate(-8deg);
+}
+
+.w3 {
+    right: -18px;
+    top: 36px;
+    transform: rotate(-10deg);
+}
+
+.w4 {
+    right: -18px;
+    top: 44px;
+    transform: rotate(8deg);
+}
+
+/* =========================
+   OBJETOS
+========================= */
+
+.item {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    z-index: 10;
+}
+
+/* PETISCO */
+
+.snack {
+    background: #d78a3b;
+    border: 4px solid #8b4c20;
+    border-radius: 50%;
+
+    box-shadow:
+        inset 8px 6px 0 #efb05c,
+        inset -7px -5px 0 #b96c2c;
+}
+
+.snack::before,
+.snack::after {
+    content: "";
+    position: absolute;
+    background: #8b4c20;
+    border-radius: 50%;
+}
+
+.snack::before {
+    width: 8px;
+    height: 8px;
+    left: 13px;
+    top: 13px;
+
+    box-shadow:
+        18px 5px 0 #8b4c20,
+        9px 20px 0 #8b4c20,
+        27px 25px 0 #8b4c20;
+}
+
+.snack::after {
+    width: 6px;
+    height: 6px;
+    left: 27px;
+    top: 7px;
+
+    box-shadow:
+        -15px 24px 0 #8b4c20;
+}
+
+/* =========================
+   MAÇÃ
+========================= */
+
+.apple {
+    width: 48px;
+    height: 48px;
+    left: 3px;
+    background: #e73535;
+    border: 3px solid #a71919;
+    border-radius: 48% 48% 50% 50%;
+    transform: rotate(-4deg);
+}
+
+.apple::before {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 15px;
+    background: #6e3d20;
+    left: 22px;
+    top: -11px;
+    transform: rotate(10deg);
+}
+
+.apple::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 9px;
+    background: #48a63e;
+    border-radius: 100%;
+    left: 25px;
+    top: -7px;
+    transform: rotate(-25deg);
+}
+
+/* =========================
+   BANANA
+========================= */
+
+.banana {
+    width: 48px;
+    height: 27px;
+    border: 8px solid #f2d13d;
+    border-top-color: transparent;
+    border-left-color: #f2d13d;
+    border-radius: 50%;
+    transform: rotate(-25deg);
+}
+
+.banana::before,
+.banana::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #9a7620;
+    border-radius: 50%;
+}
+
+.banana::before {
+    left: -7px;
+    top: 10px;
+}
+
+.banana::after {
+    right: -8px;
+    top: -7px;
+}
+
+/* =========================
+   LARANJA
+========================= */
+
+.orange {
+    width: 48px;
+    height: 48px;
+    background: #ff941f;
+    border: 3px solid #c8650e;
+    border-radius: 50%;
+}
+
+.orange::before {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: #c8650e;
+    border-radius: 50%;
+    left: 9px;
+    top: 9px;
+
+    box-shadow:
+        18px 4px 0 #c8650e,
+        25px 20px 0 #c8650e,
+        8px 28px 0 #c8650e;
+}
+
+/* =========================
+   EFEITOS
+========================= */
+
+.effect {
+    position: absolute;
+    z-index: 100;
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px #333;
+    animation: effect .7s forwards;
+    pointer-events: none;
+}
+
+@keyframes effect {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.4) translateY(-60px);
+    }
+}
+
+/* =========================
+   MENU
+========================= */
+
+#menu {
+    position: absolute;
+    z-index: 200;
+    width: min(90%, 450px);
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: white;
+    padding: 35px;
+    border-radius: 25px;
+    text-align: center;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,.3);
+}
+
+#menu h1 {
+    color: #e77b20;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+#menu p {
+    color: #444;
+    font-size: 17px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+#start {
+    border: none;
+    padding: 14px 35px;
+    border-radius: 30px;
+
+    background: #ef8c28;
+    color: white;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 5px 0 #b96115;
+}
+
+#start:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #b96115;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================
+   CONTROLES
+========================= */
+
+#controls {
+    position: absolute;
+    z-index: 150;
+
+    bottom: 8px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 20px;
+}
+
+.control {
+    width: 70px;
+    height: 50px;
+
+    border: none;
+    border-radius: 18px;
+
+    background: rgba(0,0,0,.35);
+    color: white;
+
+    font-size: 25px;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+
+    .hud-box {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    #menu h1 {
+        font-size: 26px;
+    }
+
+    #menu {
+        padding: 25px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <!-- PLACAR -->
+
+    <div id="hud">
+
+        <div class="hud-box">
+            Pontos: <span id="score">0</span>
+        </div>
+
+        <div class="hud-box">
+            Vidas: <span id="lives">3</span>
+        </div>
+
+        <div class="hud-box">
+            Nivel: <span id="level">1</span>
+        </div>
+
+    </div>
+
+    <!-- GATINHO -->
+
+    <div id="player">
+
+        <div class="cat-head">
+
+            <div class="ear-left"></div>
+            <div class="ear-right"></div>
+
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+
+            <div class="nose"></div>
+            <div class="mouth"></div>
+
+            <div class="whisker w1"></div>
+            <div class="whisker w2"></div>
+            <div class="whisker w3"></div>
+            <div class="whisker w4"></div>
+
+        </div>
+
+    </div>
+
+    <!-- CONTROLES -->
+
+    <div id="controls">
+
+        <button class="control" id="left">
+            &lt;
+        </button>
+
+        <button class="control" id="right">
+            &gt;
+        </button>
+
+    </div>
+
+    <!-- MENU -->
+
+    <div id="menu">
+
+        <h1>Gatinho Caçador</h1>
+
+        <p>
+            Ajude o gatinho a pegar os petiscos
+            que caem do céu.
+            <br><br>
+            Cuidado com as frutas!
+            Se o gatinho pegar uma fruta,
+            perde uma vida.
+            <br><br>
+            A cada 10 pontos o jogo fica mais difícil.
+        </p>
+
+        <button id="start">
+            COMEÇAR
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+
+const scoreText = document.getElementById("score");
+const livesText = document.getElementById("lives");
+const levelText = document.getElementById("level");
+
+const menu = document.getElementById("menu");
+const startButton = document.getElementById("start");
+
+const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
+
+let running = false;
+
+let score = 0;
+let lives = 3;
+let level = 1;
+
+let playerX = window.innerWidth / 2;
+
+let moveLeft = false;
+let moveRight = false;
+
+let objects = [];
+
+let spawnTimer = null;
+
+const fruits = [
+    "apple",
+    "banana",
+    "orange"
+];
+
+function startGame() {
+
+    score = 0;
+    lives = 3;
+    level = 1;
+
+    scoreText.textContent = score;
+    livesText.textContent = lives;
+    levelText.textContent = level;
+
+    playerX = window.innerWidth / 2;
+
+    player.style.left = playerX + "px";
+
+    objects.forEach(object => {
+        object.element.remove();
+    });
+
+    objects = [];
+
+    menu.classList.add("hidden");
+
+    running = true;
+
+    spawnObjects();
+
+    requestAnimationFrame(update);
+}
+
+/* =========================
+   CRIAR OBJETOS
+========================= */
+
+function createObject() {
+
+    const element = document.createElement("div");
+
+    element.classList.add("item");
+
+    const isSnack = Math.random() < 0.65;
+
+    if (isSnack) {
+
+        element.classList.add("snack");
+
+    } else {
+
+        const fruit =
+            fruits[Math.floor(Math.random() * fruits.length)];
+
+        element.classList.add(fruit);
+
+    }
+
+    const x =
+        Math.random() *
+        (window.innerWidth - 60);
+
+    element.style.left = x + "px";
+    element.style.top = "-70px";
+
+    game.appendChild(element);
+
+    objects.push({
+
+        element: element,
+
+        x: x,
+
+        y: -70,
+
+        type: isSnack ? "snack" : "fruit",
+
+        speed:
+            2 +
+            level * .45 +
+            Math.random() * 1.8
+    });
+}
+
+/* =========================
+   GERAR OBJETOS
+========================= */
+
+function spawnObjects() {
+
+    if (!running) return;
+
+    createObject();
+
+    const delay =
+        Math.max(
+            260,
+            900 - level * 60
+        );
+
+    spawnTimer =
+        setTimeout(
+            spawnObjects,
+            delay
+        );
+}
+
+/* =========================
+   ATUALIZAR JOGO
+========================= */
+
+function update() {
+
+    if (!running) return;
+
+    /* Movimento */
+
+    if (moveLeft) {
+        playerX -= 8;
+    }
+
+    if (moveRight) {
+        playerX += 8;
+    }
+
+    /* Limites */
+
+    if (playerX < 0) {
+        playerX = 0;
+    }
+
+    if (playerX > window.innerWidth - 76) {
+        playerX = window.innerWidth - 76;
+    }
+
+    player.style.left =
+        playerX + "px";
+
+    /* Objetos */
+
+    for (
+        let i = objects.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const object = objects[i];
+
+        object.y += object.speed;
+
+        object.element.style.top =
+            object.y + "px";
+
+        if (collision(object)) {
+
+            if (object.type === "snack") {
+
+                collectSnack(object);
+
+            } else {
+
+                hitFruit(object);
+
+            }
+
+            object.element.remove();
+
+            objects.splice(i, 1);
+
+            continue;
+        }
+
+        if (object.y > window.innerHeight) {
+
+            object.element.remove();
+
+            objects.splice(i, 1);
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+/* =========================
+   COLISÃO
+========================= */
+
+function collision(object) {
+
+    const playerRect =
+        player.getBoundingClientRect();
+
+    const objectRect =
+        object.element.getBoundingClientRect();
+
+    return (
+
+        playerRect.left <
+        objectRect.right &&
+
+        playerRect.right >
+        objectRect.left &&
+
+        playerRect.top <
+        objectRect.bottom &&
+
+        playerRect.bottom >
+        objectRect.top
+    );
+}
+
+/* =========================
+   PEGOU PETISCO
+========================= */
+
+function collectSnack(object) {
+
+    score++;
+
+    scoreText.textContent = score;
+
+    createEffect(
+        object.x,
+        object.y,
+        "+1"
+    );
+
+    const newLevel =
+        Math.floor(score / 10) + 1;
+
+    if (newLevel > level) {
+
+        level = newLevel;
+
+        levelText.textContent = level;
+
+        createEffect(
+            playerX,
+            window.innerHeight - 150,
+            "NIVEL " + level
+        );
+    }
+}
+
+/* =========================
+   PEGOU FRUTA
+========================= */
+
+function hitFruit(object) {
+
+    lives--;
+
+    livesText.textContent = lives;
+
+    createEffect(
+        object.x,
+        object.y,
+        "-1"
+    );
+
+    player.style.transform =
+        "translateX(-50%) rotate(15deg)";
+
+    setTimeout(() => {
+
+        player.style.transform =
+            "translateX(-50%)";
+
+    }, 150);
+
+    if (lives <= 0) {
+
+        gameOver();
+    }
+}
+
+/* =========================
+   EFEITO
+========================= */
+
+function createEffect(x, y, text) {
+
+    const effect =
+        document.createElement("div");
+
+    effect.className = "effect";
+
+    effect.textContent = text;
+
+    effect.style.left = x + "px";
+    effect.style.top = y + "px";
+
+    game.appendChild(effect);
+
+    setTimeout(() => {
+
+        effect.remove();
+
+    }, 700);
+}
+
+/* =========================
+   FIM DE JOGO
+========================= */
+
+function gameOver() {
+
+    running = false;
+
+    clearTimeout(spawnTimer);
+
+    menu.classList.remove("hidden");
+
+    menu.innerHTML = `
+
+        <h1>Fim de jogo</h1>
+
+        <p>
+            O gatinho ficou sem vidas.
+            <br><br>
+
+            Pontuação:
+            <strong>${score}</strong>
+
+            <br>
+
+            Nivel:
+            <strong>${level}</strong>
+        </p>
+
+        <button id="start">
+            JOGAR NOVAMENTE
+        </button>
+    `;
+
+    document
+        .getElementById("start")
+        .addEventListener(
+            "click",
+            startGame
+        );
+}
+
+/* =========================
+   TECLADO
+========================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            moveLeft = true;
+        }
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            moveRight = true;
+        }
+    }
+);
+
+document.addEventListener(
+    "keyup",
+    function(event) {
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            moveLeft = false;
+        }
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            moveRight = false;
+        }
+    }
+);
+
+/* =========================
+   BOTÕES CELULAR
+========================= */
+
+leftButton.addEventListener(
+    "touchstart",
+    function(event) {
+
+        event.preventDefault();
+
+        moveLeft = true;
+    }
+);
+
+leftButton.addEventListener(
+    "touchend",
+    function(event) {
+
+        event.preventDefault();
+
+        moveLeft = false;
+    }
+);
+
+rightButton.addEventListener(
+    "touchstart",
+    function(event) {
+
+        event.preventDefault();
+
+        moveRight = true;
+    }
+);
+
+rightButton.addEventListener(
+    "touchend",
+    function(event) {
+
+        event.preventDefault();
+
+        moveRight = false;
+    }
+);
+
+/* Mouse */
+
+leftButton.addEventListener(
+    "mousedown",
+    () => moveLeft = true
+);
+
+leftButton.addEventListener(
+    "mouseup",
+    () => moveLeft = false
+);
+
+rightButton.addEventListener(
+    "mousedown",
+    () => moveRight = true
+);
+
+rightButton.addEventListener(
+    "mouseup",
+    () => moveRight = false
+);
+
+/* Começar */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+/* Redimensionamento */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        playerX =
+            Math.min(
+                playerX,
+                window.innerWidth - 76
+            );
+
+        player.style.left =
+            playerX + "px";
+    }
+);
+
+</script>
+
+</body>
+</html>
